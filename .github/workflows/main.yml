@@ -1,14 +1,14 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches: ['2.*', '3.x']
+    branches: [2.*, 3.x]
     paths-ignore:
-    - "README.md"
-    - "release-notes/*"
+    - README.md
+    - release-notes/*
   pull_request:
     paths-ignore:
-    - "README.md"
-    - "release-notes/*"
+    - README.md
+    - release-notes/*
 permissions:
   contents: read
 
@@ -20,24 +20,24 @@ jobs:
       matrix:
         java_version: ['8', '17', '21', '24']
         # We will actually need "os" as Matrix to have Windows build
-        os: ['ubuntu-24.04']
+        os: [ubuntu-24.04]
         include:
-          - java_version: '8'
-            os: 'ubuntu-24.04'
-            release_build: 'R'
-          - java_version: '8'
-            os: 'windows-2022'
-            is_windows: 'W'
+        - java_version: '8'
+          os: ubuntu-24.04
+          release_build: R
+        - java_version: '8'
+          os: windows-2022
+          is_windows: W
     env:
-      JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+      JAVA_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Set up JDK
       uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
       with:
-        distribution: 'temurin'
+        distribution: temurin
         java-version: ${{ matrix.java_version }}
-        cache: 'maven'
+        cache: maven
         server-id: central-snapshots
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD
@@ -71,10 +71,10 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
-    - name: "Upload Jars"
+    - name: Upload Jars
       uses: actions/upload-artifact@v4
       if: matrix.java_version == '8'
       with:
-          name: "jars-${{ matrix.os }}"
-          path: "**/*.jar"
+        name: jars-${{ matrix.os }}
+        path: '**/*.jar'
 
